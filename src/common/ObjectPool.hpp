@@ -69,6 +69,11 @@ public:
         freeList = new_free_node;
     }
 
+    T* memory()
+    {
+        return &pool[0];
+    }
+
 private:
     struct FreeNode
     {

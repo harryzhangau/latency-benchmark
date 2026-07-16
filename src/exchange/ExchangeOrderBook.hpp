@@ -10,6 +10,7 @@
 #include "ExchangeOrders.hpp"
 #include "OrderMessage.hpp"
 #include "common/CallbackStorage.hpp"
+#include "common/HashMap.hpp"
 #include "common/Log.hpp"
 #include "common/ObjectPool.hpp"
 
@@ -26,7 +27,8 @@ template <class... Ts> struct overloaded : Ts...
 template <typename MessageBusType> class ExchangeOrderBook
 {
 public:
-    static constexpr size_t POOL_SIZE = 5'000'000;
+    static constexpr size_t MAP_SIZE = 1 << 23;
+    static constexpr size_t POOL_SIZE = (MAP_SIZE * 3) / 4;
 
     struct LinkedExchangeOrderAllocator
     {
@@ -78,7 +80,7 @@ private:
             {
                 if (auto inserted = bids.insert({order.id, order.side, order.price, remaining})) [[likely]]
                 {
-                    orderMap[inserted->id] = inserted;
+                    orderMap.insert(inserted->id, inserted - pool.memory());
                 }
                 else [[unlikely]]
                 {
@@ -97,7 +99,7 @@ private:
             {
                 if (auto inserted = asks.insert({order.id, order.side, order.price, remaining})) [[likely]]
                 {
-                    orderMap[inserted->id] = inserted;
+                    orderMap.insert(inserted->id, inserted - pool.memory());
                 }
                 else [[unlikely]]
                 {
@@ -109,11 +111,11 @@ private:
 
     void deleteOrder(uint64_t orderId) noexcept
     {
-        auto it = orderMap.find(orderId);
-        if (it == orderMap.end()) [[unlikely]]
+        auto linkedOrderOffset = orderMap.get(orderId);
+        if (!linkedOrderOffset.has_value()) [[unlikely]]
             return;
+        auto linkedOrder = pool.memory() + *linkedOrderOffset;
 
-        auto linkedOrder = it->second;
         linkedOrder->triggerCallback();
 
         orderMap.erase(orderId);
@@ -126,8 +128,7 @@ private:
 
     MessageBusType& messageBus;
 
-    // @todo Replace it with low overhead map
-    std::unordered_map<uint64_t, LinkedExchangeOrder*> orderMap;
+    HashMap<uint64_t, uint64_t, std::countr_zero(MAP_SIZE)> orderMap;
 
     friend class ::TestExchangeOrderBook;
 };
