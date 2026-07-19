@@ -55,6 +55,7 @@ add_executable(latency_benchmark_test)
 target_sources(latency_benchmark_test
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/TestExchangeOrderBook.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/TestHashMap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/TestObjectList.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/TestObjectPool.cpp
 )

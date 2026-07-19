@@ -44,5 +44,5 @@ int main()
     std::signal(SIGINT, signalHandler);
 
     benchmarkExchangeOrderBook<Percentile>(std::chrono::milliseconds(1));
-    benchmarkExchangeOrderBook<Throughput>(std::chrono::microseconds(1));
+    benchmarkExchangeOrderBook<Throughput>(std::chrono::microseconds(0));
 }
