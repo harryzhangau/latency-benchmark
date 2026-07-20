@@ -7,7 +7,7 @@ namespace lm
 
 template <unsigned P> constexpr inline uint64_t hash(uint64_t key) noexcept
 {
-    static_assert(P > 0 && P <= 64);
+    static_assert(P > 0 && P < 64);
 
     static constexpr uint64_t MASK = (1 << P) - 1;
     return key & MASK;

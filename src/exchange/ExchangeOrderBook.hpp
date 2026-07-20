@@ -24,7 +24,7 @@ template <class... Ts> struct overloaded : Ts...
     using Ts::operator()...;
 };
 
-template <typename MessageBusType> class ExchangeOrderBook
+class ExchangeOrderBook
 {
 public:
     static constexpr size_t MAP_SIZE = 1 << 23;
@@ -34,20 +34,19 @@ public:
     {
         static LinkedExchangeOrder* allocate()
         {
-            return ExchangeOrderBook<MessageBusType>::pool.allocate();
+            return ExchangeOrderBook::pool.allocate();
         }
     };
 
     struct LinkedExchangeOrderDeleter : public ObjectPool<LinkedExchangeOrder, POOL_SIZE>::Deleter
     {
         LinkedExchangeOrderDeleter()
-            : ObjectPool<LinkedExchangeOrder, POOL_SIZE>::Deleter(ExchangeOrderBook<MessageBusType>::pool)
+            : ObjectPool<LinkedExchangeOrder, POOL_SIZE>::Deleter(ExchangeOrderBook::pool)
         {
         }
     };
 
-    ExchangeOrderBook(MessageBusType& messageBus)
-        : messageBus(messageBus)
+    ExchangeOrderBook()
     {
     }
 
@@ -125,8 +124,6 @@ private:
 
     ExchangeOrders<BuySide, LinkedExchangeOrderAllocator, LinkedExchangeOrderDeleter> bids;
     ExchangeOrders<SellSide, LinkedExchangeOrderAllocator, LinkedExchangeOrderDeleter> asks;
-
-    MessageBusType& messageBus;
 
     HashMap<uint64_t, uint64_t, std::countr_zero(MAP_SIZE)> orderMap;
 
