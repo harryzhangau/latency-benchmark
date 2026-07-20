@@ -3,27 +3,29 @@
 template <typename T, typename Return, typename... Args>
 concept ConvertibleToFunctionPtr = std::convertible_to<T, Return (*)(Args...)>;
 
-class CallbackStorage
+template <typename ReturnType, typename... Args> class CallbackStorage
 {
     void* object = nullptr;
-    void (*callback)(void*, CallbackStorage*) = nullptr;
+    ReturnType (*callback)(void*, CallbackStorage*, Args...) = nullptr;
 
 public:
     CallbackStorage() = default;
 
     template <typename F>
-        requires ConvertibleToFunctionPtr<F, void, void*, CallbackStorage*>
+        requires ConvertibleToFunctionPtr<F, ReturnType, void*, CallbackStorage*, Args...>
     void setCallback(void* object, F callback) noexcept
     {
         this->object = object;
         this->callback = callback;
     }
 
-    void triggerCallback()
+    ReturnType triggerCallback(Args... args)
     {
         if (object && object)
         {
-            callback(object, this);
+            return callback(object, this, args...);
         }
+
+        return ReturnType{};
     }
 };

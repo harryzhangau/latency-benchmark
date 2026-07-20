@@ -58,6 +58,7 @@ target_sources(latency_benchmark_test
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/TestHashMap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/TestObjectList.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/TestObjectPool.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/TestDevices.cpp
 )
 
 target_include_directories(latency_benchmark_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

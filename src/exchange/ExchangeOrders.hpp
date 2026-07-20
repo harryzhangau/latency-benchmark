@@ -19,7 +19,7 @@ namespace lm
 static constexpr size_t MAX_LEVELS = 1'000'00;
 static constexpr size_t MAX_BITMAPS = (MAX_LEVELS / 64) + 1;
 
-struct LinkedExchangeOrder : public CallbackStorage
+struct LinkedExchangeOrder : public CallbackStorage<void>
 {
     uint32_t id;
     uint32_t price;
@@ -206,7 +206,7 @@ public:
         linked_order->next = linked_order->prev = nullptr;
 
         linked_order->setCallback(
-            this, +[](void* delegate, CallbackStorage* order) {
+            this, +[](void* delegate, CallbackStorage<void>* order) {
                 static_cast<ExchangeOrders*>(delegate)->removeOrder(static_cast<LinkedExchangeOrder*>(order));
             });
 

@@ -4,11 +4,11 @@
 
 #include <common/SpscMessageBus.hpp>
 #include <common/Utils.hpp>
+#include <devices/OrderGeneratorDevice.hpp>
 #include <exchange/ExchangeOrderBook.hpp>
 #include <exchange/ExchangeOrders.hpp>
 #include <exchange/ItchMessage.hpp>
 #include <exchange/OrderMessage.hpp>
-#include <instrument/OrderGenerator.hpp>
 
 using namespace lm;
 
@@ -103,12 +103,11 @@ TEST_F(TestExchangeOrderBook, TestSellSide)
 
 TEST_F(TestExchangeOrderBook, TestOrders)
 {
-    using Bus = SpscMessageBus<itch::ItchMessage>;
-    using Asks = ExchangeOrders<SellSide, ExchangeOrderBook<Bus>::LinkedExchangeOrderAllocator,
-                                ExchangeOrderBook<Bus>::LinkedExchangeOrderDeleter>;
+    using Asks = ExchangeOrders<SellSide, ExchangeOrderBook::LinkedExchangeOrderAllocator,
+                                ExchangeOrderBook::LinkedExchangeOrderDeleter>;
 
-    using Bids = ExchangeOrders<BuySide, ExchangeOrderBook<Bus>::LinkedExchangeOrderAllocator,
-                                ExchangeOrderBook<Bus>::LinkedExchangeOrderDeleter>;
+    using Bids = ExchangeOrders<BuySide, ExchangeOrderBook::LinkedExchangeOrderAllocator,
+                                ExchangeOrderBook::LinkedExchangeOrderDeleter>;
 
     auto asks = std::make_unique<Asks>();
     asks->insert({0, AddOrder::Side::SELL, 355, 149});
@@ -128,7 +127,7 @@ TEST_F(TestExchangeOrderBook, TestOrders)
 TEST_F(TestExchangeOrderBook, TestOrderBook)
 {
     auto message_bus = std::make_unique<SpscMessageBus<itch::ItchMessage>>();
-    auto exchange_order_book = std::make_unique<ExchangeOrderBook<SpscMessageBus<itch::ItchMessage>>>(*message_bus);
+    auto exchange_order_book = std::make_unique<ExchangeOrderBook>();
 
     auto order1 = AddOrder{100, AddOrder::Side::BUY, 355, 149};
     auto order2 = AddOrder{101, AddOrder::Side::BUY, 320, 190};

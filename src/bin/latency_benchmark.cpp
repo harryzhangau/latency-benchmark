@@ -21,28 +21,18 @@ void signalHandler(int signal)
     }
 }
 
-template <template <typename> typename Method>
-void benchmarkExchangeOrderBook(std::chrono::nanoseconds orderGenerationInterval)
+template <typename... T> void runBenchmark(std::atomic_bool& keepRunnng)
 {
-    using ProcessorType = ExchangeOrderBook<SpscMessageBus<itch::ItchMessage>>;
-
-    if (!keepRunning.load(std::memory_order_relaxed))
-        return;
-
-    auto message_bus = std::make_unique<SpscMessageBus<itch::ItchMessage>>();
-    auto processor = std::make_unique<ProcessorType>(*message_bus);
-
-    auto method = std::make_unique<Method<ProcessorType>>(*processor, orderGenerationInterval, keepRunning);
-
-    SPDLOG_INFO("Running benchmark. Press Ctrl+C to exit...");
-    method->run();
-    SPDLOG_INFO("Finished benchmark.");
+    (T()(keepRunning), ...);
 }
 
 int main()
 {
     std::signal(SIGINT, signalHandler);
+    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%t] [%l] %v");
+    SPDLOG_INFO("Running benchmark. Press Ctrl+C to exit...");
 
-    benchmarkExchangeOrderBook<Percentile>(std::chrono::milliseconds(1));
-    benchmarkExchangeOrderBook<Throughput>(std::chrono::microseconds(0));
+    runBenchmark<Percentile, Throughput>(keepRunning);
+
+    SPDLOG_INFO("Finished benchmark.");
 }

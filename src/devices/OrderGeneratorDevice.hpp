@@ -9,11 +9,13 @@
 #include "../common/SpscMessageBus.hpp"
 #include "../common/Utils.hpp"
 #include "../exchange/OrderMessage.hpp"
+#include "base/Device.hpp"
+#include "base/Task.hpp"
 
 namespace lm
 {
 
-class OrderGenerator
+class OrderGeneratorDevice : public Device, public Task<OrderGeneratorDevice>
 {
 public:
     struct RandConfig
@@ -23,15 +25,19 @@ public:
         int high;
     };
 
-    OrderGenerator(int sideSeed, const RandConfig& quantityConfig, const RandConfig& priceConfig,
-                   SpscMessageBus<OrderMessage>& orderBus,
-                   std::chrono::nanoseconds interval = std::chrono::nanoseconds(0))
-        : sideSeed(sideSeed),
+    OrderGeneratorDevice(int sideSeed, const RandConfig& quantityConfig, const RandConfig& priceConfig,
+                         std::chrono::nanoseconds interval, std::atomic_bool& keepRunning,
+                         size_t maxProcessingCount = std::numeric_limits<size_t>::max())
+        : Device(),
+          Task<OrderGeneratorDevice>(2, keepRunning),
+          sideSeed(sideSeed),
           quantityConfig(quantityConfig),
           priceConfig(priceConfig),
-          orderBus(orderBus),
-          interval(interval)
+          interval(interval),
+          maxProcessingCount(maxProcessingCount)
     {
+        output = std::make_unique<Pad<const OrderMessage&>>(PadType::ACTIVE);
+        registerPad("output", output.get());
     }
 
     std::generator<OrderMessage> generate()
@@ -69,44 +75,22 @@ public:
         }
     }
 
-    std::future<void> start()
-    {
-        std::promise<void> complete_promise;
-        std::future<void> complete_future = complete_promise.get_future();
-
-        running.store(true, std::memory_order_release);
-
-        thread = std::jthread([this](std::stop_token stoken,
-                                     std::promise<void> complete_promise) { run(stoken, std::move(complete_promise)); },
-                              std::move(complete_promise));
-
-        pinToCpuCore(thread, 2);
-
-        return complete_future;
-    }
-
-    void stop()
-    {
-        thread.request_stop();
-        thread.join();
-
-        running.store(true, std::memory_order_release);
-    }
-
-    void run(std::stop_token stoken, std::promise<void> complete_promise)
+    void run(std::stop_token stoken, std::atomic_bool& keepRunning)
     {
         auto last = std::chrono::steady_clock::now();
-
+        size_t counter = maxProcessingCount;
         auto generator = generate();
         for (auto msg : generator)
         {
-            if (stoken.stop_requested())
+            if (stoken.stop_requested() || !keepRunning.load(std::memory_order_relaxed) || counter == 0)
                 break;
 
-            if (!orderBus.send(msg))
+            if (!output->trigger(msg))
             {
                 LM_LIMIT_LOG_WARN(std::chrono::seconds(5), "Order message bus is full");
             }
+
+            counter--;
 
             if (interval.count() > 0)
             {
@@ -119,20 +103,16 @@ public:
                 last = now;
             }
         }
-
-        complete_promise.set_value();
     }
 
 private:
     int sideSeed;
     RandConfig quantityConfig;
     RandConfig priceConfig;
-
-    std::jthread thread;
-    std::atomic<bool> running{false};
-
-    SpscMessageBus<OrderMessage>& orderBus;
     std::chrono::nanoseconds interval;
+    const size_t maxProcessingCount;
+
+    std::unique_ptr<Pad<const OrderMessage&>> output;
 };
 
 } // namespace lm
