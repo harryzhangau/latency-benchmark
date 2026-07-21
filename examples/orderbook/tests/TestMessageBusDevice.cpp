@@ -2,9 +2,10 @@
 #include <gtest/gtest.h>
 #include <thread>
 
-#include "base/Device.hpp"
-#include "base/Pad.hpp"
-#include "devices/MessageBusDevice.hpp"
+#include <latencybenchmark/base/Device.hpp>
+#include <latencybenchmark/base/Pad.hpp>
+
+#include "../devices/MessageBusDevice.hpp"
 
 using namespace lm;
 

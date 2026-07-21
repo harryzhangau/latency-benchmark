@@ -1,8 +1,8 @@
 #pragma once
 
-#include "base/Device.hpp"
-#include "base/Pad.hpp"
-#include "common/SpscMessageBus.hpp"
+#include <latencybenchmark/base/Device.hpp>
+#include <latencybenchmark/base/Pad.hpp>
+#include <orderbook/common/SpscMessageBus.hpp>
 
 namespace lm
 {

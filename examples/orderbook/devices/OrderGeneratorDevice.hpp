@@ -5,12 +5,12 @@
 #include <random>
 #include <thread>
 
-#include "../common/Log.hpp"
-#include "../common/SpscMessageBus.hpp"
-#include "../common/Utils.hpp"
-#include "../exchange/OrderMessage.hpp"
-#include "base/Device.hpp"
-#include "base/Task.hpp"
+#include <latencybenchmark/base/Device.hpp>
+#include <latencybenchmark/base/Task.hpp>
+#include <latencybenchmark/base/Utils.hpp>
+#include <orderbook/common/Log.hpp>
+#include <orderbook/common/SpscMessageBus.hpp>
+#include <orderbook/exchange/OrderMessage.hpp>
 
 namespace lm
 {

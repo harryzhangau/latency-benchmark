@@ -3,8 +3,9 @@
 #include <atomic>
 #include <string>
 #include <unordered_map>
+#include <variant>
 
-#include "common/CallbackStorage.hpp"
+#include "CallbackStorage.hpp"
 
 namespace lm
 {

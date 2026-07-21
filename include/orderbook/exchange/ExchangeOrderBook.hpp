@@ -7,12 +7,13 @@
 #include <stdexcept>
 #include <stdint.h>
 
+#include <latencybenchmark/base/CallbackStorage.hpp>
+
+#include "../common/HashMap.hpp"
+#include "../common/Log.hpp"
+#include "../common/ObjectPool.hpp"
 #include "ExchangeOrders.hpp"
 #include "OrderMessage.hpp"
-#include "common/CallbackStorage.hpp"
-#include "common/HashMap.hpp"
-#include "common/Log.hpp"
-#include "common/ObjectPool.hpp"
 
 class TestExchangeOrderBook;
 

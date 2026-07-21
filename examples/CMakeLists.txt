@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(LatencyBenchmark CXX)
+project(LatencyBenchmarkExamples CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,15 +14,4 @@ endif()
 
 add_compile_options(-fconcepts-diagnostics-depth=3)
 
-add_library(latencybenchmark INTERFACE)
-
-target_include_directories(latencybenchmark INTERFACE 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
-
-if(PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    enable_testing()
-    add_subdirectory(tests)
-    add_subdirectory(examples)
-endif()
+add_subdirectory(orderbook)

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "common/HashMap.hpp"
+#include <orderbook/common/HashMap.hpp>
 
 using namespace lm;
 

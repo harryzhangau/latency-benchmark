@@ -4,7 +4,7 @@
 #include <memory>
 #include <stdint.h>
 
-#include "common/ObjectList.hpp"
+#include "../common/ObjectList.hpp"
 
 namespace lm
 {

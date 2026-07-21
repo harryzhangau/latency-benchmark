@@ -7,11 +7,12 @@
 #include <stdexcept>
 #include <stdint.h>
 
+#include <latencybenchmark/base/CallbackStorage.hpp>
+
+#include "../common/Bitmap.hpp"
+#include "../common/Log.hpp"
 #include "ExchangePriceLevel.hpp"
 #include "OrderMessage.hpp"
-#include "common/Bitmap.hpp"
-#include "common/CallbackStorage.hpp"
-#include "common/Log.hpp"
 
 namespace lm
 {

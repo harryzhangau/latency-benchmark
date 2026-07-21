@@ -1,10 +1,10 @@
 #pragma once
 
-#include "base/Device.hpp"
-#include "base/Pad.hpp"
-#include "base/Task.hpp"
-#include "exchange/ExchangeOrderBook.hpp"
-#include "exchange/OrderMessage.hpp"
+#include <latencybenchmark/base/Device.hpp>
+#include <latencybenchmark/base/Pad.hpp>
+#include <latencybenchmark/base/Task.hpp>
+#include <orderbook/exchange/ExchangeOrderBook.hpp>
+#include <orderbook/exchange/OrderMessage.hpp>
 
 namespace lm
 {
