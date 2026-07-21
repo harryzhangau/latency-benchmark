@@ -5,7 +5,7 @@ concept ConvertibleToFunctionPtr = std::convertible_to<T, Return (*)(Args...)>;
 
 template <typename ReturnType, typename... Args> class CallbackStorage
 {
-    void* object = nullptr;
+    void* delegate = nullptr;
     ReturnType (*callback)(void*, CallbackStorage*, Args...) = nullptr;
 
 public:
@@ -13,19 +13,14 @@ public:
 
     template <typename F>
         requires ConvertibleToFunctionPtr<F, ReturnType, void*, CallbackStorage*, Args...>
-    void setCallback(void* object, F callback) noexcept
+    void setCallback(void* delegate, F callback) noexcept
     {
-        this->object = object;
+        this->delegate = delegate;
         this->callback = callback;
     }
 
     ReturnType triggerCallback(Args... args)
     {
-        if (object && object)
-        {
-            return callback(object, this, args...);
-        }
-
-        return ReturnType{};
+        return callback(delegate, this, args...);
     }
 };

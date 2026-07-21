@@ -95,7 +95,11 @@ void runThroughputBenchmark(std::atomic_bool& keepRunning)
         return;
     }
 
-    auto throughput_measurement = std::make_unique<ThroughputMeasurement>();
+    auto throughput_measurement = std::make_unique<ThroughputMeasurement<uint64_t>>(1'000'000ULL);
+    throughput_measurement->setCallback(
+        nullptr, +[](void* delegate, CallbackStorage<void, uint64_t, uint64_t>* measurement, uint64_t pace,
+                     uint64_t arg) { std::cout << "> " << pace << " orders/second, sitting orders: " << arg << "\n"; });
+
     if (!connect<size_t>(*order_book, "after_processing", *throughput_measurement, "probe"))
     {
         SPDLOG_ERROR("Failed to connect order book to measurement probe");
