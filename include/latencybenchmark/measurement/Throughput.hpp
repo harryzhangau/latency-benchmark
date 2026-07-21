@@ -9,17 +9,16 @@
 namespace lm
 {
 
-template <typename... PadArgs>
-class ThroughputMeasurement : public Device, public CallbackStorage<void, uint64_t, PadArgs...>
+template <typename T> class ThroughputMeasurement : public Device, public CallbackStorage<void, uint64_t, T>
 {
 public:
     ThroughputMeasurement(uint64_t reportInterval)
         : reportInterval(reportInterval == 0 ? 1 : reportInterval)
     {
         // Passive
-        probe = std::make_unique<Pad<PadArgs...>>(PadType::PASSIVE);
+        probe = std::make_unique<Pad<T>>(PadType::PASSIVE);
         probe->setCallback(
-            this, +[](void* delegate, CallbackStorage<bool, PadArgs...>* pad, PadArgs... args) {
+            this, +[](void* delegate, CallbackStorage<bool, T>* pad, T arg) {
                 auto self = static_cast<ThroughputMeasurement*>(delegate);
 
                 if (self->counter == 0)
@@ -33,7 +32,7 @@ public:
                     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - self->lastTime).count();
 
                     unsigned pace = self->reportInterval * 1000ULL / elapsed;
-                    self->triggerCallback(pace, std::forward<PadArgs>(args)...);
+                    self->triggerCallback(pace, arg);
 
                     self->lastTime = now;
                 }
@@ -47,7 +46,7 @@ private:
     CallbackStorage<void, uint64_t>* callback = nullptr;
     const uint64_t reportInterval = 1;
 
-    std::unique_ptr<Pad<PadArgs...>> probe;
+    std::unique_ptr<Pad<T>> probe;
 
     uint64_t counter = 0;
     std::chrono::steady_clock::time_point lastTime = std::chrono::steady_clock::now();
