@@ -39,3 +39,6 @@ BreakConstructorInitializers: BeforeColon
 
 PointerAlignment: Left
 ReferenceAlignment: Left
+
+InsertNewlineAtEOF: true
+KeepEmptyLinesAtEOF: false
