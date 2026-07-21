@@ -9,17 +9,17 @@
 namespace lm
 {
 
-template <typename... ExtraArgs>
-class ThroughputMeasurement : public Device, public CallbackStorage<void, uint64_t, ExtraArgs...>
+template <typename... PadArgs>
+class ThroughputMeasurement : public Device, public CallbackStorage<void, uint64_t, PadArgs...>
 {
 public:
     ThroughputMeasurement(uint64_t reportInterval)
         : reportInterval(reportInterval == 0 ? 1 : reportInterval)
     {
         // Passive
-        probe = std::make_unique<Pad<ExtraArgs...>>(PadType::PASSIVE);
+        probe = std::make_unique<Pad<PadArgs...>>(PadType::PASSIVE);
         probe->setCallback(
-            this, +[](void* delegate, CallbackStorage<bool, ExtraArgs...>* pad, ExtraArgs... args) {
+            this, +[](void* delegate, CallbackStorage<bool, PadArgs...>* pad, PadArgs... args) {
                 auto self = static_cast<ThroughputMeasurement*>(delegate);
 
                 if (self->counter == 0)
@@ -33,7 +33,7 @@ public:
                     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - self->lastTime).count();
 
                     unsigned pace = self->reportInterval * 1000ULL / elapsed;
-                    self->triggerCallback(pace, std::forward<ExtraArgs>(args)...);
+                    self->triggerCallback(pace, std::forward<PadArgs>(args)...);
 
                     self->lastTime = now;
                 }
@@ -47,7 +47,7 @@ private:
     CallbackStorage<void, uint64_t>* callback = nullptr;
     const uint64_t reportInterval = 1;
 
-    std::unique_ptr<Pad<ExtraArgs...>> probe;
+    std::unique_ptr<Pad<PadArgs...>> probe;
 
     uint64_t counter = 0;
     std::chrono::steady_clock::time_point lastTime = std::chrono::steady_clock::now();
