@@ -17,9 +17,9 @@ public:
         : reportInterval(reportInterval == 0 ? 1 : reportInterval)
     {
         // Passive
-        probe = std::make_unique<Pad<size_t>>(PadType::PASSIVE);
+        probe = std::make_unique<Pad<ExtraArgs...>>(PadType::PASSIVE);
         probe->setCallback(
-            this, +[](void* delegate, CallbackStorage<bool, size_t>* pad, uint64_t arg) {
+            this, +[](void* delegate, CallbackStorage<bool, ExtraArgs...>* pad, ExtraArgs... args) {
                 auto self = static_cast<ThroughputMeasurement*>(delegate);
 
                 if (self->counter == 0)
@@ -33,7 +33,7 @@ public:
                     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - self->lastTime).count();
 
                     unsigned pace = self->reportInterval * 1000ULL / elapsed;
-                    self->triggerCallback(pace, arg);
+                    self->triggerCallback(pace, std::forward<ExtraArgs>(args)...);
 
                     self->lastTime = now;
                 }
@@ -45,11 +45,11 @@ public:
 
 private:
     CallbackStorage<void, uint64_t>* callback = nullptr;
-    uint64_t reportInterval = 1;
+    const uint64_t reportInterval = 1;
 
-    std::unique_ptr<Pad<size_t>> probe;
+    std::unique_ptr<Pad<ExtraArgs...>> probe;
 
-    size_t counter = 0;
+    uint64_t counter = 0;
     std::chrono::steady_clock::time_point lastTime = std::chrono::steady_clock::now();
 };
 
