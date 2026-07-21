@@ -2,13 +2,12 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-#include <common/SpscMessageBus.hpp>
-#include <common/Utils.hpp>
-#include <devices/OrderGeneratorDevice.hpp>
-#include <exchange/ExchangeOrderBook.hpp>
-#include <exchange/ExchangeOrders.hpp>
-#include <exchange/ItchMessage.hpp>
-#include <exchange/OrderMessage.hpp>
+#include <latencybenchmark/base/Utils.hpp>
+#include <orderbook/common/SpscMessageBus.hpp>
+#include <orderbook/exchange/ExchangeOrderBook.hpp>
+#include <orderbook/exchange/ExchangeOrders.hpp>
+#include <orderbook/exchange/ItchMessage.hpp>
+#include <orderbook/exchange/OrderMessage.hpp>
 
 using namespace lm;
 
