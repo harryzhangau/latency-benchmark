@@ -63,8 +63,9 @@ void runPercentileBenchmark(std::atomic_bool& keepRunning)
     auto orderbook_future = order_book->start();
     auto generator_future = order_generator->start();
 
-    orderbook_future.wait();
     generator_future.wait();
+    order_book->stop();
+    orderbook_future.wait();
 
     for (auto nth : {99, 90, 50, 30})
     {
@@ -95,10 +96,10 @@ void runThroughputBenchmark(std::atomic_bool& keepRunning)
         return;
     }
 
-    auto throughput_measurement = std::make_unique<ThroughputMeasurement<uint64_t>>(1'000'000ULL);
+    auto throughput_measurement = std::make_unique<ThroughputMeasurement<size_t>>(1'000'000ULL);
     throughput_measurement->setCallback(
-        nullptr, +[](void* delegate, CallbackStorage<void, uint64_t, uint64_t>* measurement, uint64_t pace,
-                     uint64_t arg) { std::cout << "> " << pace << " orders/second, sitting orders: " << arg << "\n"; });
+        nullptr, +[](void* delegate, CallbackStorage<void, uint64_t, size_t>* measurement, uint64_t pace,
+                     size_t arg) { std::cout << "> " << pace << " orders/second, sitting orders: " << arg << "\n"; });
 
     if (!connect<size_t>(*order_book, "after_processing", *throughput_measurement, "probe"))
     {
@@ -109,8 +110,9 @@ void runThroughputBenchmark(std::atomic_bool& keepRunning)
     auto orderbook_future = order_book->start();
     auto generator_future = order_generator->start();
 
-    orderbook_future.wait();
     generator_future.wait();
+    order_book->stop();
+    orderbook_future.wait();
 }
 
 int main(int argc, char* argv[])
